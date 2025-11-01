@@ -46,6 +46,9 @@ class Reward:
         """
         if len(result) != 4:
             raise ValueError("result must contain 4 horse numbers")
+        
+        if df.empty:
+            return 0
 
         if game_id is None:
             game_id = df['game_id'].values[-1]
