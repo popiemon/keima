@@ -13,7 +13,12 @@ class Item(BaseModel):
 
 @app.get("/")
 def read_root():
-    return {"Hello": "World"}
+    return {"Hello": "Keima"}
+
+
+@app.post("/admin/coin/{team_name}")
+def add_coin(team_name: str, amount: int):
+    return {"team_name": team_name, "added_coin": amount}
 
 
 @app.get("/items/{item_id}")
