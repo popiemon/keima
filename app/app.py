@@ -2,6 +2,10 @@ import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
 
+from keima.coins.set_coins import set_team_coins
+
+DIR_PATH = "../data"
+
 app = FastAPI()
 
 
@@ -16,8 +20,9 @@ def read_root():
     return {"Hello": "Keima"}
 
 
-@app.post("/admin/coin/{team_name}")
-def add_coin(team_name: str, amount: int):
+@app.post("/admin/set_coins/{team_name}")
+def set_coins(team_name: str, amount: int):
+    set_team_coins(team_name, amount, DIR_PATH)
     return {"team_name": team_name, "added_coin": amount}
 
 
