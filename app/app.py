@@ -2,8 +2,8 @@ import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
 
-from keima.coins.get_coins import get_team_coins
-from keima.coins.set_coins import set_team_coins
+from keima.backend.coins.get_coins import get_team_coins
+from keima.backend.coins.set_coins import set_team_coins
 
 DIR_PATH = "../data"
 
@@ -17,6 +17,8 @@ class Item(BaseModel):
 
 
 class RaceState(BaseModel):
+    """raceの状態を保存するクラス"""
+
     race_id: int = 0
     ticket_buy: bool = False
 
