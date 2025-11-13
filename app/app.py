@@ -78,7 +78,7 @@ def get_coins(team_name: str, game_id: int | None = None) -> dict:
     return {"team_name": team_name, "coins": coins}
 
 
-@app.post("/admin/race_state")
+@app.post("/admin/set_race_state")
 def set_race_state(race_state: RaceState) -> dict:
     """レースの状態を設定する
 
@@ -97,7 +97,7 @@ def set_race_state(race_state: RaceState) -> dict:
     return {"race_id": race_state.race_id, "ticket_buy": race_state.ticket_buy}
 
 
-@app.get("/admin/race_state")
+@app.get("/get_race_state")
 def get_race_state() -> dict:
     """レースの状態を取得する
 
