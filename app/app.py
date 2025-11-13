@@ -171,9 +171,24 @@ def pay_tickets(team_name: str) -> dict:
     return {"team_name": team_name, "team_coins": team_coins - pay_coins}
 
 
-@app.put("/items/{item_id}")
-def update_item(item_id: int, item: Item):
-    return {"item_name": item.name, "item_id": item_id}
+@app.post("/admin/race_result/{race_id}")
+def race_result(race_id: int, result: list[int]) -> dict:
+    """レースの結果を保存する
+
+    Parameters
+    ----------
+    race_id : int
+        レース番号
+    result : list[int]
+        レースの結果
+
+    Returns
+    -------
+    dict
+        レース番号とレース結果の辞書
+    """
+    # This is a placeholder implementation.
+    return {"race_id": race_id, "result": result}
 
 
 if __name__ == "__main__":
