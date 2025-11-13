@@ -1,6 +1,8 @@
-name: Pylint
+name: ruff check
 
-on: [push]
+on:
+  pull_request:
+    branches: [ main , feature* ]
 
 jobs:
   build:
@@ -19,6 +21,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install uv
         uv sync --all-extras
-    - name: Analysing the code with pylint
+    - name: Analysing the code with ruff
       run: |
         uv run ruff check src/
