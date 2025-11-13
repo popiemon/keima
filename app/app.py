@@ -1,3 +1,4 @@
+import pandas as pd
 import uvicorn
 from fastapi import FastAPI
 from pydantic import BaseModel
@@ -32,7 +33,7 @@ def read_root():
 
 
 @app.post("/admin/set_coins/{team_name}")
-def set_coins(team_name: str, amount: int, game_id: int | None = None) -> dict:
+def set_coins(team_name: str, coins: int, game_id: int | None = None) -> dict:
     """各チームのcoinをsetする
 
     game_idが指定されていないときは、既存の最大値+1とする。
@@ -43,7 +44,7 @@ def set_coins(team_name: str, amount: int, game_id: int | None = None) -> dict:
     ----------
     team_name : str
         teamの名前
-    amount : int
+    coins : int
         設定するcoinの数
     game_id : int | None, optional
         レース番号。, by default None
@@ -53,8 +54,8 @@ def set_coins(team_name: str, amount: int, game_id: int | None = None) -> dict:
     dict
         設定したteam_nameと追加したcoin数の辞書
     """
-    set_team_coins(team_name, amount, DIR_PATH, game_id)
-    return {"team_name": team_name, "added_coin": amount}
+    set_team_coins(team_name, coins, DIR_PATH, game_id)
+    return {"team_name": team_name, "added_coin": coins}
 
 
 @app.get("/get_coins/{team_name}")
@@ -114,9 +115,60 @@ def get_race_state() -> dict:
     return {"race_id": race_state.race_id, "ticket_buy": race_state.ticket_buy}
 
 
-@app.get("/items/{item_id}")
-def read_item(item_id: int, q: str = None):
-    return {"item_id": item_id, "q": q}
+@app.post("/buy_ticket/{team_name}")
+def buy_ticket(team_name: str, ticket_df: pd.DataFrame) -> dict:
+    """チケットを購入する
+
+    Parameters
+    ----------
+    team_name : str
+        teamの名前
+    ticket_df : pd.DataFrame
+        チケットの情報のDataFrame
+    Returns
+    -------
+    dict
+        team_nameと購入したチケット数の辞書
+    """
+    race_state = get_race_state()
+    race_id = race_state["race_id"]
+    ticket_buy = race_state["ticket_buy"]
+    if not ticket_buy:
+        return {"error": "Ticket purchasing is currently closed."}
+
+    num_coins = ticket_df["unit"].sum()
+    team_coin = get_coins(team_name)["coins"]
+    if team_coin < num_coins:
+        return {"error": "Not enough coins to purchase tickets."}
+
+    ticket_df.to_csv(f"{DIR_PATH}/{team_name}_{race_id}_tickets.csv", index=False)
+    return {"team_name": team_name, "purchased_tickets_coins": num_coins}
+
+
+@app.post("/admin/pay_tickets/{team_name}")
+def pay_tickets(team_name: str) -> dict:
+    """チームのチケットの支払いを行う
+    Parameters
+    ----------
+    team_name : str
+        teamの名前
+
+    Returns
+    -------
+    dict
+        team_nameと支払ったチケット数の辞書
+    """
+    race_state = get_race_state()
+    race_id = race_state["race_id"]
+    ticket_buy = race_state["ticket_buy"]
+    if ticket_buy:
+        return {"error": "Ticket purchasing is still open."}
+    ticket_df = pd.read_csv(f"{DIR_PATH}/{team_name}_{race_id}_tickets.csv")
+    # This is a placeholder implementation.
+    pay_coins = ticket_df["unit"].sum()
+    team_coins = get_coins(team_name)["coins"]
+    set_coins(team_name, team_coins - pay_coins)
+    return {"team_name": team_name, "team_coins": team_coins - pay_coins}
 
 
 @app.put("/items/{item_id}")
