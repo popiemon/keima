@@ -1,30 +1,20 @@
 import pandas as pd
 import uvicorn
 from fastapi import FastAPI
-from pydantic import BaseModel
 
+from keima.backend.app_class.app_class import BuyTicketRequest, RaceState
 from keima.backend.coins.get_coins import get_team_coins
 from keima.backend.coins.set_coins import set_team_coins
+from keima.backend.race_result.load_result import load_result
+from keima.backend.race_result.save_result import save_result
+from keima.backend.reward.reward import Reward
 
 DIR_PATH = "../data"
 
 app = FastAPI()
 
-
-class Item(BaseModel):
-    name: str
-    price: float
-    is_offer: bool = None
-
-
-class RaceState(BaseModel):
-    """raceの状態を保存するクラス"""
-
-    race_id: int = 0
-    ticket_buy: bool = False
-
-
 race_state_store = RaceState()
+reward_cls = Reward()
 
 
 @app.get("/")
@@ -116,15 +106,15 @@ def get_race_state() -> dict:
 
 
 @app.post("/buy_ticket/{team_name}")
-def buy_ticket(team_name: str, ticket_df: pd.DataFrame) -> dict:
+def buy_ticket(team_name: str, request: BuyTicketRequest) -> dict:
     """チケットを購入する
 
     Parameters
     ----------
     team_name : str
         teamの名前
-    ticket_df : pd.DataFrame
-        チケットの情報のDataFrame
+    request : BuyTicketRequest
+        チケット情報のリスト
     Returns
     -------
     dict
@@ -136,6 +126,8 @@ def buy_ticket(team_name: str, ticket_df: pd.DataFrame) -> dict:
     if not ticket_buy:
         return {"error": "Ticket purchasing is currently closed."}
 
+    # チケット情報を DataFrame に変換
+    ticket_df = pd.DataFrame([t.model_dump() for t in request.tickets])
     num_coins = ticket_df["unit"].sum()
     team_coin = get_coins(team_name)["coins"]
     if team_coin < num_coins:
@@ -171,14 +163,12 @@ def pay_tickets(team_name: str) -> dict:
     return {"team_name": team_name, "team_coins": team_coins - pay_coins}
 
 
-@app.post("/admin/race_result/{race_id}")
-def race_result(race_id: int, result: list[int]) -> dict:
+@app.post("/admin/save_race_result")
+def save_race_result(result: list[int]) -> dict:
     """レースの結果を保存する
 
     Parameters
     ----------
-    race_id : int
-        レース番号
     result : list[int]
         レースの結果
 
@@ -187,8 +177,35 @@ def race_result(race_id: int, result: list[int]) -> dict:
     dict
         レース番号とレース結果の辞書
     """
-    # This is a placeholder implementation.
+    race_id = get_race_state()["race_id"]
+    save_result(race_id, result, DIR_PATH)
     return {"race_id": race_id, "result": result}
+
+
+@app.post("/admin/reward_tickets/{team_name}")
+def reward_tickets(team_name: str) -> dict:
+    """チームのチケットの報酬を行う
+    Parameters
+    ----------
+    team_name : str
+        teamの名前
+
+    Returns
+    -------
+    dict
+        team_nameと報酬したチケット数の辞書
+    """
+    race_state = get_race_state()
+    race_id = race_state["race_id"]
+    ticket_buy = race_state["ticket_buy"]
+    if ticket_buy:
+        return {"error": "Ticket purchasing is still open."}
+    ticket_df = pd.read_csv(f"{DIR_PATH}/{team_name}_{race_id}_tickets.csv")
+    result = load_result(race_id, DIR_PATH)
+    reward_coins = reward_cls.reward_point(ticket_df, result)
+    team_coins = get_coins(team_name)["coins"]
+    set_coins(team_name, team_coins + reward_coins)
+    return {"team_name": team_name, "team_coins": team_coins + reward_coins}
 
 
 if __name__ == "__main__":
