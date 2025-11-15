@@ -70,7 +70,7 @@ def get_coins(team_name: str, game_id: int | None = None) -> dict:
         team_nameとcoin数の辞書
     """
     coins = get_team_coins(team_name, DIR_PATH, game_id)
-    return {"team_name": team_name, "coins": coins}
+    return {"team_name": team_name, "coins": int(coins)}
 
 
 @app.post("/admin/set_race_state")
