@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 
 
@@ -27,7 +29,7 @@ def set_team_coins(
     """
     # This is a placeholder implementation.
     df_path = f"{dir_path}/{team_name}_coins.csv"
-    if df_path.exists():
+    if Path(df_path).exists():
         df = pd.read_csv(df_path)
         if game_id is None:
             game_id = df["game_id"].max() + 1
