@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import pandas as pd
 import uvicorn
 from fastapi import FastAPI
@@ -9,7 +11,7 @@ from keima.backend.race_result.load_result import load_result
 from keima.backend.race_result.save_result import save_result
 from keima.backend.reward.reward import Reward
 
-DIR_PATH = "../data"
+DIR_PATH = str(Path(__file__).parent.parent / "data")
 
 app = FastAPI()
 
