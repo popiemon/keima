@@ -136,7 +136,7 @@ def buy_ticket(team_name: str, request: BuyTicketRequest) -> dict:
         return {"error": "Not enough coins to purchase tickets."}
 
     ticket_df.to_csv(f"{DIR_PATH}/{team_name}_{race_id}_tickets.csv", index=False)
-    return {"team_name": team_name, "purchased_tickets_coins": num_coins}
+    return {"team_name": team_name, "purchased_tickets_coins": int(num_coins)}
 
 
 @app.post("/admin/pay_tickets/{team_name}")
@@ -161,8 +161,8 @@ def pay_tickets(team_name: str) -> dict:
     # This is a placeholder implementation.
     pay_coins = ticket_df["unit"].sum()
     team_coins = get_coins(team_name)["coins"]
-    set_coins(team_name, team_coins - pay_coins)
-    return {"team_name": team_name, "team_coins": team_coins - pay_coins}
+    set_coins(team_name, team_coins - pay_coins, race_id)
+    return {"team_name": team_name, "team_coins": int(team_coins - pay_coins)}
 
 
 @app.post("/admin/save_race_result")
@@ -207,7 +207,7 @@ def reward_tickets(team_name: str) -> dict:
     reward_coins = reward_cls.reward_point(ticket_df, result)
     team_coins = get_coins(team_name)["coins"]
     set_coins(team_name, team_coins + reward_coins)
-    return {"team_name": team_name, "team_coins": team_coins + reward_coins}
+    return {"team_name": team_name, "team_coins": int(team_coins + reward_coins)}
 
 
 if __name__ == "__main__":
