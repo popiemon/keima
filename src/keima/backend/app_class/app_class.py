@@ -5,7 +5,7 @@ class TicketInfo(BaseModel):
     """チケット情報"""
 
     game_id: int
-    ticket_type: str  # 'win', 'quinella', 'trifecta'
+    ticket_type: str  # 'win', 'exacta', 'trifecta'
     one: int
     two: int | None = None
     three: int | None = None
