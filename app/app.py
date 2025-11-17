@@ -131,7 +131,7 @@ def buy_ticket(team_name: str, request: BuyTicketRequest) -> dict:
     # チケット情報を DataFrame に変換
     ticket_df = pd.DataFrame([t.model_dump() for t in request.tickets])
     num_coins = ticket_df["unit"].sum()
-    team_coin = get_coins(team_name)["coins"]
+    team_coin = get_team_coins(team_name, DIR_PATH)
     if team_coin < num_coins:
         return {"error": "Not enough coins to purchase tickets."}
 
@@ -205,8 +205,8 @@ def reward_tickets(team_name: str) -> dict:
     ticket_df = pd.read_csv(f"{DIR_PATH}/{team_name}_{race_id}_tickets.csv")
     result = load_result(race_id, DIR_PATH)
     reward_coins = reward_cls.reward_point(ticket_df, result)
-    team_coins = get_coins(team_name)["coins"]
-    set_coins(team_name, team_coins + reward_coins)
+    team_coins = get_team_coins(team_name, DIR_PATH)
+    set_team_coins(team_name, team_coins + reward_coins, DIR_PATH)
     return {"team_name": team_name, "team_coins": int(team_coins + reward_coins)}
 
 
