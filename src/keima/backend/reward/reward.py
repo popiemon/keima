@@ -12,7 +12,7 @@ class Reward:
         single_rate : int, optional
             単勝, by default 4
         exacta_rate : int, optional
-            馬連, by default 12
+            馬単, by default 12
         trifecta_rate : int, optional
             三連単, by default 28
         """
