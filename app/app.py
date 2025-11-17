@@ -160,8 +160,8 @@ def pay_tickets(team_name: str) -> dict:
     ticket_df = pd.read_csv(f"{DIR_PATH}/{team_name}_{race_id}_tickets.csv")
     # This is a placeholder implementation.
     pay_coins = ticket_df["unit"].sum()
-    team_coins = get_coins(team_name)["coins"]
-    set_coins(team_name, team_coins - pay_coins, race_id)
+    team_coins = get_team_coins(team_name, DIR_PATH)
+    set_team_coins(team_name, team_coins - pay_coins, DIR_PATH)
     return {"team_name": team_name, "team_coins": int(team_coins - pay_coins)}
 
 
