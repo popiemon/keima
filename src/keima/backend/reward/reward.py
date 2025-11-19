@@ -52,10 +52,10 @@ class Reward:
         int
             獲得ポイント
         """
-        num_players = int(os.getenv("NUM_PLAYERS", "4"))
-        if len(result) != num_players:
+        KEIMA_NUM_PLAYERS = int(os.getenv("KEIMA_NUM_PLAYERS", "4"))
+        if len(result) != KEIMA_NUM_PLAYERS:
             raise InvalidPlayerCountError(
-                f"result must contain {num_players} player numbers"
+                f"result must contain {KEIMA_NUM_PLAYERS} player numbers"
             )
 
         if df.empty:

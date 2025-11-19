@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import pandas as pd
@@ -26,5 +27,6 @@ def load_result(race_id: int, dir_path: str) -> list[int]:
     if results.empty:
         raise ValueError(f"No results found for race_id {race_id}")
 
+    KEIMA_NUM_PLAYERS = int(os.getenv("KEIMA_NUM_PLAYERS", "4"))
     result_row = results.iloc[0]
-    return [result_row[f"racer_{i + 1}"] for i in range(4)]
+    return [result_row[f"racer_{i + 1}"] for i in range(KEIMA_NUM_PLAYERS)]
