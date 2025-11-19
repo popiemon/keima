@@ -2,6 +2,8 @@ import os
 
 import pandas as pd
 
+from keima.myexception.backend import InvalidPlayerCountError
+
 
 class Reward:
     def __init__(
@@ -52,7 +54,9 @@ class Reward:
         """
         num_players = int(os.getenv("NUM_PLAYERS", "4"))
         if len(result) != num_players:
-            raise ValueError(f"result must contain {num_players} player numbers")
+            raise InvalidPlayerCountError(
+                f"result must contain {num_players} player numbers"
+            )
 
         if df.empty:
             return 0
