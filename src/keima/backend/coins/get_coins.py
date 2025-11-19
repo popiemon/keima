@@ -23,7 +23,7 @@ def get_team_coins(team_name: str, dir_path: str, game_id: int | None = None) ->
     """
     df_path = f"{dir_path}/{team_name}_coins.csv"
     df = pd.read_csv(df_path)
-    if game_id is not None:
+    if game_id is not None and len(df) > 0:
         coins = df.loc[df["game_id"] == game_id, "coins"].iloc[0]
     else:
         df = df.sort_values(by="game_id", ascending=False)
