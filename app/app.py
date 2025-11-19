@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
 from keima.backend.app_class.app_class import BuyTicketRequest, RaceState
 from keima.backend.coins.get_coins import get_team_coins
@@ -126,7 +126,9 @@ def buy_ticket(team_name: str, request: BuyTicketRequest) -> dict:
     race_id = race_state["race_id"]
     ticket_buy = race_state["ticket_buy"]
     if not ticket_buy:
-        return {"error": "Ticket purchasing is currently closed."}
+        raise HTTPException(
+            status_code=403, detail="Ticket purchasing is currently closed."
+        )
 
     # チケット情報を DataFrame に変換
     ticket_df = pd.DataFrame([t.model_dump() for t in request.tickets])
