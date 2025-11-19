@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 
 
@@ -48,8 +50,9 @@ class Reward:
         int
             獲得ポイント
         """
-        if len(result) != 4:
-            raise ValueError("result must contain 4 horse numbers")
+        num_players = int(os.getenv("NUM_PLAYERS", "4"))
+        if len(result) != num_players:
+            raise ValueError(f"result must contain {num_players} player numbers")
 
         if df.empty:
             return 0
