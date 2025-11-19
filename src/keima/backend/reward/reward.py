@@ -55,7 +55,7 @@ class Reward:
             return 0
 
         if game_id is None:
-            game_id = df["game_id"].values[-1]
+            game_id = df["game_id"].max()
 
         df = df[df["game_id"] == game_id]
 
