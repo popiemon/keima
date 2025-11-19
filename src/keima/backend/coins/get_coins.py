@@ -1,5 +1,7 @@
 import pandas as pd
 
+from keima.myexception.backend import NoCoinsDataError
+
 
 def get_team_coins(team_name: str, dir_path: str, game_id: int | None = None) -> int:
     """teamのcoinを取得する。
@@ -24,7 +26,10 @@ def get_team_coins(team_name: str, dir_path: str, game_id: int | None = None) ->
     df_path = f"{dir_path}/{team_name}_coins.csv"
     df = pd.read_csv(df_path)
 
-    if game_id is not None and not df.empty:
+    if df.empty:
+        raise NoCoinsDataError(f"No coins data available for team: {team_name}")
+
+    if game_id is not None:
         filtered_coins = df.loc[df["game_id"] == game_id, "coins"]
         coins = filtered_coins.iloc[0] if not filtered_coins.empty else 0
     else:
