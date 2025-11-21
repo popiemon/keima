@@ -2,7 +2,7 @@ from pathlib import Path
 
 import pandas as pd
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException
 
 from keima.backend.app_class.app_class import BuyTicketRequest, RaceState
 from keima.backend.coins.get_coins import get_team_coins
@@ -17,6 +17,18 @@ app = FastAPI()
 
 race_state_store = RaceState()
 reward_cls = Reward()
+
+
+class RaceStateService:
+    def __init__(self):
+        self.race_state = RaceState()
+
+
+race_state_service = RaceStateService()
+
+
+def get_race_state_service():
+    return race_state_service
 
 
 @app.get("/")
@@ -74,7 +86,9 @@ def get_coins(team_name: str, game_id: int | None = None) -> dict:
 
 
 @app.post("/admin/set_race_state")
-def set_race_state(race_state: RaceState) -> dict:
+def set_race_state(
+    race_state: RaceState, service: RaceStateService = Depends(get_race_state_service)
+) -> dict:
     """レースの状態を設定する
 
     Parameters
@@ -87,24 +101,21 @@ def set_race_state(race_state: RaceState) -> dict:
     dict
         レースの状態
     """
-    global race_state_store
-    race_state_store = race_state
+    service.race_state = race_state
     return {"race_id": race_state.race_id, "ticket_buy": race_state.ticket_buy}
+
+
+def current_race_state() -> dict:
+    """内部呼び出し用: メモリ上の race_state_service から現在の状態を返す"""
+    rs = race_state_service.race_state
+    return {"race_id": rs.race_id, "ticket_buy": rs.ticket_buy}
 
 
 @app.get("/get_race_state")
-def get_race_state() -> dict:
-    """レースの状態を取得する
-
-    Returns
-    -------
-    dict
-        レースの状態
-    """
-    global race_state_store
-    race_state = race_state_store
-    # This is a placeholder implementation.
-    return {"race_id": race_state.race_id, "ticket_buy": race_state.ticket_buy}
+def get_race_state(service: RaceStateService = Depends(get_race_state_service)) -> dict:
+    """HTTP エンドポイント: DI でサービスを受け取り現在の race_state を返す"""
+    rs = service.race_state
+    return {"race_id": rs.race_id, "ticket_buy": rs.ticket_buy}
 
 
 @app.post("/buy_ticket/{team_name}")
@@ -122,7 +133,7 @@ def buy_ticket(team_name: str, request: BuyTicketRequest) -> dict:
     dict
         team_nameと購入したチケット数の辞書
     """
-    race_state = get_race_state()
+    race_state = current_race_state()
     race_id = race_state["race_id"]
     ticket_buy = race_state["ticket_buy"]
     if not ticket_buy:
@@ -154,7 +165,7 @@ def pay_tickets(team_name: str) -> dict:
     dict
         team_nameと支払ったチケット数の辞書
     """
-    race_state = get_race_state()
+    race_state = current_race_state()
     race_id = race_state["race_id"]
     ticket_buy = race_state["ticket_buy"]
     if ticket_buy:
@@ -181,7 +192,7 @@ def save_race_result(result: list[int]) -> dict:
     dict
         レース番号とレース結果の辞書
     """
-    race_id = get_race_state()["race_id"]
+    race_id = current_race_state()["race_id"]
     save_result(race_id, result, DIR_PATH)
     return {"race_id": race_id, "result": result}
 
@@ -199,7 +210,7 @@ def reward_tickets(team_name: str) -> dict:
     dict
         team_nameと報酬したチケット数の辞書
     """
-    race_state = get_race_state()
+    race_state = current_race_state()
     race_id = race_state["race_id"]
     ticket_buy = race_state["ticket_buy"]
     if ticket_buy:
