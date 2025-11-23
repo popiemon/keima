@@ -2,6 +2,7 @@ import pandas as pd
 import pytest
 
 from keima.backend.reward.reward import Reward
+from keima.myexception.backend import InvalidPlayerCountError
 
 
 def make_df(tickets):
@@ -11,16 +12,37 @@ def make_df(tickets):
     return pd.DataFrame(tickets)
 
 
-def test_single_win():
+@pytest.mark.parametrize(
+    ("unit", "expected"),
+    [
+        (1, 4),
+        (2, 8),
+    ],
+)
+def test_single_win(unit: int, expected: int) -> None:
     df = make_df(
         [
-            {"game_id": 1, "ticket_type": "win", "one": 2, "two": None, "three": None},
-            {"game_id": 1, "ticket_type": "win", "one": 3, "two": None, "three": None},
+            {
+                "game_id": 1,
+                "ticket_type": "win",
+                "unit": unit,
+                "one": 2,
+                "two": None,
+                "three": None,
+            },
+            {
+                "game_id": 1,
+                "ticket_type": "win",
+                "unit": unit,
+                "one": 3,
+                "two": None,
+                "three": None,
+            },
         ]
     )
     result = [2, 1, 3, 4]
-    reward = Reward(single_rate=4)
-    assert reward.reward_point(df, result, 1) == 4
+    r = Reward(single_rate=4)
+    assert r.reward_point(df, result, 1) == expected
 
 
 def test_exacta_win():
@@ -29,6 +51,7 @@ def test_exacta_win():
             {
                 "game_id": 2,
                 "ticket_type": "exacta",
+                "unit": 1,
                 "one": 2,
                 "two": 1,
                 "three": None,
@@ -36,6 +59,7 @@ def test_exacta_win():
             {
                 "game_id": 2,
                 "ticket_type": "exacta",
+                "unit": 1,
                 "one": 1,
                 "two": 2,
                 "three": None,
@@ -50,8 +74,22 @@ def test_exacta_win():
 def test_trifecta_win():
     df = make_df(
         [
-            {"game_id": 3, "ticket_type": "trifecta", "one": 2, "two": 1, "three": 3},
-            {"game_id": 3, "ticket_type": "trifecta", "one": 2, "two": 3, "three": 1},
+            {
+                "game_id": 3,
+                "ticket_type": "trifecta",
+                "unit": 1,
+                "one": 2,
+                "two": 1,
+                "three": 3,
+            },
+            {
+                "game_id": 3,
+                "ticket_type": "trifecta",
+                "unit": 1,
+                "one": 2,
+                "two": 3,
+                "three": 1,
+            },
         ]
     )
     result = [2, 1, 3, 4]
@@ -62,16 +100,38 @@ def test_trifecta_win():
 def test_multiple_tickets():
     df = make_df(
         [
-            {"game_id": 4, "ticket_type": "win", "one": 2, "two": None, "three": None},
-            {"game_id": 4, "ticket_type": "win", "one": 2, "two": None, "three": None},
+            {
+                "game_id": 4,
+                "ticket_type": "win",
+                "unit": 1,
+                "one": 2,
+                "two": None,
+                "three": None,
+            },
+            {
+                "game_id": 4,
+                "ticket_type": "win",
+                "unit": 1,
+                "one": 2,
+                "two": None,
+                "three": None,
+            },
             {
                 "game_id": 4,
                 "ticket_type": "exacta",
+                "unit": 1,
                 "one": 2,
                 "two": 1,
                 "three": None,
             },
-            {"game_id": 4, "ticket_type": "trifecta", "one": 2, "two": 1, "three": 3},
+            {
+                "game_id": 4,
+                "ticket_type": "trifecta",
+                "unit": 1,
+                "one": 2,
+                "two": 1,
+                "three": 3,
+            },
         ]
     )
     result = [2, 1, 3, 4]
@@ -83,8 +143,22 @@ def test_multiple_tickets():
 def test_game_id_none_uses_latest():
     df = make_df(
         [
-            {"game_id": 10, "ticket_type": "win", "one": 1, "two": None, "three": None},
-            {"game_id": 11, "ticket_type": "win", "one": 2, "two": None, "three": None},
+            {
+                "game_id": 10,
+                "ticket_type": "win",
+                "unit": 1,
+                "one": 1,
+                "two": None,
+                "three": None,
+            },
+            {
+                "game_id": 11,
+                "ticket_type": "win",
+                "unit": 1,
+                "one": 2,
+                "two": None,
+                "three": None,
+            },
         ]
     )
     result = [2, 1, 3, 4]
@@ -96,11 +170,18 @@ def test_game_id_none_uses_latest():
 def test_invalid_result_length():
     df = make_df(
         [
-            {"game_id": 1, "ticket_type": "win", "one": 2, "two": None, "three": None},
+            {
+                "game_id": 1,
+                "ticket_type": "win",
+                "unit": 1,
+                "one": 2,
+                "two": None,
+                "three": None,
+            },
         ]
     )
     reward = Reward()
-    with pytest.raises(ValueError):
+    with pytest.raises(InvalidPlayerCountError):
         reward.reward_point(df, [1, 2, 3], 1)
 
 
