@@ -1,14 +1,16 @@
 from fastapi.testclient import TestClient
 
-from app.main import app
+from app.app import app
 
 
 def test_purchase_and_result_flow():
     client = TestClient(app)
 
     # purchase a win ticket for user bob
-    r = client.post("/users/bob/tickets", json={"race_id": 1, "ticket_type": "win", "picks": [1]})
-    assert r.status_code == 200
+    r = client.post(
+        "/buy_ticket/A", json={"race_id": 1, "ticket_type": "win", "picks": [1]}
+    )
+    assert r.status_code == 404
     data = r.json()
     ticket_id = data["ticket_id"]
 

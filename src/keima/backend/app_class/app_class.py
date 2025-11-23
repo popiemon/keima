@@ -6,7 +6,6 @@ from pydantic import BaseModel
 class TicketInfo(BaseModel):
     """チケット情報"""
 
-    game_id: int
     ticket_type: Literal["win", "exacta", "trifecta"]
     one: int
     two: int | None = None
