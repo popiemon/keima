@@ -24,3 +24,9 @@ class RaceState(BaseModel):
 
     race_id: int = 0
     ticket_buy: bool = False
+
+
+class SetCoinsRequest(BaseModel):
+    team_name: str
+    coins: int
+    game_id: int | None = None

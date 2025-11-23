@@ -4,7 +4,11 @@ import pandas as pd
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
 
-from keima.backend.app_class.app_class import BuyTicketRequest, RaceState
+from keima.backend.app_class.app_class import (
+    BuyTicketRequest,
+    RaceState,
+    SetCoinsRequest,
+)
 from keima.backend.coins.get_coins import get_team_coins
 from keima.backend.coins.set_coins import set_team_coins
 from keima.backend.race_result.load_result import load_result
@@ -33,33 +37,13 @@ def get_race_state_service():
 
 @app.get("/")
 def read_root():
-    return {"Hello": "Keima"}
+    return {"Hello Keima"}
 
 
-@app.post("/admin/set_coins/{team_name}")
-def set_coins(team_name: str, coins: int, game_id: int | None = None) -> dict:
-    """各チームのcoinをsetする
-
-    game_idが指定されていないときは、既存の最大値+1とする。
-    game_idが指定されているときは、その値を使用する。
-    新規作成時はgame_idは0とする。
-
-    Parameters
-    ----------
-    team_name : str
-        teamの名前
-    coins : int
-        設定するcoinの数
-    game_id : int | None, optional
-        レース番号。, by default None
-
-    Returns
-    -------
-    dict
-        設定したteam_nameと追加したcoin数の辞書
-    """
-    set_team_coins(team_name, coins, DIR_PATH, game_id)
-    return {"team_name": team_name, "added_coin": coins}
+@app.post("/admin/set_coins")
+def set_coins(req: SetCoinsRequest) -> dict:
+    set_team_coins(req.team_name, req.coins, DIR_PATH, req.game_id)
+    return {"team_name": req.team_name, "added_coin": req.coins}
 
 
 @app.get("/get_coins/{team_name}")
