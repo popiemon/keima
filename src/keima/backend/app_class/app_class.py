@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel
 
 
@@ -5,7 +7,7 @@ class TicketInfo(BaseModel):
     """チケット情報"""
 
     game_id: int
-    ticket_type: str  # 'win', 'exacta', 'trifecta'
+    ticket_type: Literal["win", "exacta", "trifecta"]
     one: int
     two: int | None = None
     three: int | None = None
