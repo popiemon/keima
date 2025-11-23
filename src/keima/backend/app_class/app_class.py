@@ -27,6 +27,18 @@ class RaceState(BaseModel):
 
 
 class SetCoinsRequest(BaseModel):
+    """Coinの設定のクラス
+
+    Parameters
+    ----------
+    team_name : str
+        teamの名前
+    coins : int
+        設定するcoin数
+    game_id : int | None, optional
+        レース番号。, by default None
+    """
+
     team_name: str
     coins: int
     game_id: int | None = None

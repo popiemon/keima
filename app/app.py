@@ -42,23 +42,21 @@ def read_root():
 
 @app.post("/admin/set_coins")
 def set_coins(req: SetCoinsRequest) -> dict:
+    """各チームのcoinを設定する"""
     set_team_coins(req.team_name, req.coins, DIR_PATH, req.game_id)
     return {"team_name": req.team_name, "added_coin": req.coins}
 
 
-@app.get("/get_coins/{team_name}")
-def get_coins(team_name: str, game_id: int | None = None) -> dict:
+@app.get("/get_coins")
+def get_coins(team_name: str, game_id: int) -> dict:
     """各チームのcoinをgetする
-
-    game_idが指定されていないときは、最新のcoin数を返す。
-    game_idが指定されているときは、その値に対応する行のcoinsを返す。
 
     Parameters
     ----------
     team_name : str
         teamの名前
-    game_id : int | None, optional
-        レース番号。, by default None
+    game_id : int
+        レース番号
 
     Returns
     -------
