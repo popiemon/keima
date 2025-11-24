@@ -20,7 +20,15 @@ class BuyTicketRequest(BaseModel):
 
 
 class RaceState(BaseModel):
-    """raceの状態を保存するクラス"""
+    """raceの状態を保存するクラス
+
+    Parameters
+    ----------
+    race_id : int
+        レース番号
+    ticket_buy : bool
+        チケット購入可能かどうか
+    """
 
     race_id: int = 0
     ticket_buy: bool = False
