@@ -28,3 +28,7 @@ def test_set_race_state(
     )
     assert response.status_code == 200
     assert response.json() == expected_response
+
+    response_get = client.get("/get_race_state")
+    assert response_get.status_code == 200
+    assert response_get.json() == expected_response
