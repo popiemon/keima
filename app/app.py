@@ -7,6 +7,7 @@ from fastapi import Depends, FastAPI, HTTPException
 from keima.backend.app_class.app_class import (
     BuyTicketRequest,
     RaceState,
+    RaceStateService,
     SetCoinsRequest,
 )
 from keima.backend.coins.get_coins import get_team_coins
@@ -19,13 +20,7 @@ DIR_PATH = str(Path(__file__).parent.parent / "data")
 
 app = FastAPI()
 
-race_state_store = RaceState()
 reward_cls = Reward()
-
-
-class RaceStateService:
-    def __init__(self):
-        self.race_state = RaceState()
 
 
 race_state_service = RaceStateService()

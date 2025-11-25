@@ -50,3 +50,10 @@ class SetCoinsRequest(BaseModel):
     team_name: str
     coins: int
     game_id: int | None = None
+
+
+class RaceStateService:
+    """レースの状態"""
+
+    def __init__(self):
+        self.race_state = RaceState()
