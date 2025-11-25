@@ -75,6 +75,14 @@ def test_buyticket(
         json={"game_id": game_id, "ticket_buy": False},
     )
 
+    # pay tickets
+    pay_response = client.post(
+        "/admin/pay_tickets",
+        params={"team_name": team_name, "game_id": game_id},
+    )
+    assert pay_response.status_code == 200
+    assert pay_response.json()["team_coins"] == expected_coins
+
     # # Save race result
     # client.post("/admin/save_race_result", json=result)
 

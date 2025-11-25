@@ -140,6 +140,8 @@ def pay_tickets(
     ----------
     team_name : str
         teamの名前
+    game_id : int
+        レース番号
 
     Returns
     -------
@@ -147,10 +149,11 @@ def pay_tickets(
         team_nameと支払ったチケット数の辞書
     """
     race_state = current_race_state()
-    game_id = race_state["game_id"]
+    game_id_state = race_state["game_id"]
     ticket_buy = race_state["ticket_buy"]
-    if ticket_buy:
-        return {"error": "Ticket purchasing is still open."}
+    if (game_id == game_id_state) and (ticket_buy is True):
+        raise HTTPException(status_code=403, detail="Ticket purchasing is still open.")
+
     ticket_df = pd.read_csv(f"{DIR_PATH}/{team_name}_{game_id}_tickets.csv")
     # This is a placeholder implementation.
     pay_coins = ticket_df["unit"].sum()
