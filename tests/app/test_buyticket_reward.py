@@ -50,7 +50,7 @@ def test_buyticket(
     client.post("/admin/set_coins", json={"team_name": team_name, "coins": 1000})
     _ = client.post(
         "/admin/set_race_state",
-        json={"race_id": game_id, "ticket_buy": True},
+        json={"game_id": game_id, "ticket_buy": True},
     )
 
     # Buy tickets
@@ -72,7 +72,7 @@ def test_buyticket(
     # Close ticket purchasing
     client.post(
         "/admin/set_race_state",
-        json={"race_id": game_id, "ticket_buy": False},
+        json={"game_id": game_id, "ticket_buy": False},
     )
 
     # # Save race result

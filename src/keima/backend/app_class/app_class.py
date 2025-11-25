@@ -36,13 +36,13 @@ class RaceState(BaseModel):
 
     Parameters
     ----------
-    race_id : int
+    game_id : int
         レース番号
     ticket_buy : bool
         チケット購入可能かどうか
     """
 
-    race_id: int = 0
+    game_id: int = 0
     ticket_buy: bool = False
 
 

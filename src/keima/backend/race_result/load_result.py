@@ -4,12 +4,12 @@ from pathlib import Path
 import pandas as pd
 
 
-def load_result(race_id: int, dir_path: str) -> list[int]:
+def load_result(game_id: int, dir_path: str) -> list[int]:
     """レース結果を読み込む。
 
     Parameters
     ----------
-    race_id : int
+    game_id : int
         レースID
     dir_path : str
         レース結果保存ディレクトリパス
@@ -23,9 +23,9 @@ def load_result(race_id: int, dir_path: str) -> list[int]:
     df_path = dir_path / "race_results.csv"
 
     df = pd.read_csv(df_path)
-    results = df.loc[df["race_id"] == race_id]
+    results = df.loc[df["game_id"] == game_id]
     if results.empty:
-        raise ValueError(f"No results found for race_id {race_id}")
+        raise ValueError(f"No results found for game_id {game_id}")
 
     KEIMA_NUM_PLAYERS = int(os.getenv("KEIMA_NUM_PLAYERS", "4"))
     result_row = results.iloc[0]

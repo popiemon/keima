@@ -12,8 +12,8 @@ def client():
 @pytest.mark.parametrize(
     ("game_id", "ticket_buy", "expected_response"),
     [
-        (1, True, {"race_id": 1, "ticket_buy": True}),
-        (2, False, {"race_id": 2, "ticket_buy": False}),
+        (1, True, {"game_id": 1, "ticket_buy": True}),
+        (2, False, {"game_id": 2, "ticket_buy": False}),
     ],
 )
 def test_set_race_state(
@@ -24,7 +24,7 @@ def test_set_race_state(
 ) -> None:
     response = client.post(
         "/admin/set_race_state",
-        json={"race_id": game_id, "ticket_buy": ticket_buy},
+        json={"game_id": game_id, "ticket_buy": ticket_buy},
     )
     assert response.status_code == 200
     assert response.json() == expected_response

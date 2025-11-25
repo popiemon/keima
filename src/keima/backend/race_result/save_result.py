@@ -6,12 +6,12 @@ import pandas as pd
 from keima.myexception.backend import InvalidPlayerCountError
 
 
-def save_result(race_id: int, result: list[int], dir_path: str) -> None:
+def save_result(game_id: int, result: list[int], dir_path: str) -> None:
     """レース結果を保存する。
 
     Parameters
     ----------
-    race_id : int
+    game_id : int
         レースID
     result : list[int]
         レース結果
@@ -28,7 +28,7 @@ def save_result(race_id: int, result: list[int], dir_path: str) -> None:
     df_path = dir_path / "race_result.csv"
 
     # 新しい行を辞書で構築（動的に列を作成）
-    new_row_dict = {"race_id": race_id}
+    new_row_dict = {"game_id": game_id}
     new_row_dict.update({f"racer_{i + 1}": result[i] for i in range(len(result))})
 
     if df_path.exists():
