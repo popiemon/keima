@@ -14,8 +14,20 @@ class TicketInfo(BaseModel):
 
 
 class BuyTicketRequest(BaseModel):
-    """チケット購入リクエスト"""
+    """チケット購入リクエスト
 
+    Parameters
+    ----------
+    team_name : str
+        teamの名前
+    game_id : int
+        レース番号
+    tickets : list[TicketInfo]
+        購入するチケット情報のリスト
+    """
+
+    team_name: str
+    game_id: int
     tickets: list[TicketInfo]
 
 

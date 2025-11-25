@@ -95,8 +95,8 @@ def get_race_state(service: RaceStateService = Depends(get_race_state_service)) 
     return {"race_id": rs.race_id, "ticket_buy": rs.ticket_buy}
 
 
-@app.post("/buy_ticket/{team_name}")
-def buy_ticket(team_name: str, request: BuyTicketRequest) -> dict:
+@app.post("/buy_ticket")
+def buy_ticket(req: BuyTicketRequest) -> dict:
     """チケットを購入する
 
     Parameters
@@ -119,8 +119,9 @@ def buy_ticket(team_name: str, request: BuyTicketRequest) -> dict:
         )
 
     # チケット情報を DataFrame に変換
-    ticket_df = pd.DataFrame([t.model_dump() for t in request.tickets])
+    ticket_df = pd.DataFrame([t.model_dump() for t in req.tickets])
     num_coins = ticket_df["unit"].sum()
+    team_name = req.team_name
     team_coin = get_team_coins(team_name, DIR_PATH)
     if team_coin < num_coins:
         return {"error": "Not enough coins to purchase tickets."}
