@@ -10,14 +10,15 @@ def client():
 
 
 @pytest.mark.parametrize(
-    ("team_name", "game_id", "tickets", "coins", "expected_coins"),
+    ("team_name", "game_id", "tickets", "coins", "payment", "expected_coins"),
     [
-        ("A", 1, [{"ticket_type": "win", "one": 1, "unit": 2}], 100, 98),
+        ("A", 1, [{"ticket_type": "win", "one": 1, "unit": 2}], 100, 2, 98),
         (
             "B",
             1,
             [{"ticket_type": "exacta", "one": 1, "two": 2, "unit": 3}],
             100,
+            3,
             97,
         ),
         (
@@ -28,6 +29,7 @@ def client():
                 {"ticket_type": "win", "one": 4, "unit": 5},
             ],
             100,
+            6,
             94,
         ),
     ],
@@ -38,6 +40,7 @@ def test_buyticket(
     game_id: int,
     tickets: list[dict],
     coins: int,
+    payment: int,
     expected_coins: int,
 ) -> None:
     # Set coins
@@ -45,9 +48,6 @@ def test_buyticket(
         "/admin/set_coins",
         json={"team_name": team_name, "coins": coins, "game_id": game_id},
     )
-
-    # Set initial coins and allow ticket purchasing
-    client.post("/admin/set_coins", json={"team_name": team_name, "coins": 1000})
     _ = client.post(
         "/admin/set_race_state",
         json={"game_id": game_id, "ticket_buy": True, "ticket_paid": False},
@@ -63,10 +63,9 @@ def test_buyticket(
         },
     )
     assert response.status_code == 200
-    purchased_coins = sum(t["unit"] for t in tickets)
     assert response.json() == {
         "team_name": team_name,
-        "purchased_tickets_coins": purchased_coins,
+        "purchased_tickets_coins": payment,
     }
 
     # Close ticket purchasing
