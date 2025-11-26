@@ -79,7 +79,11 @@ def set_race_state(
         レースの状態
     """
     service.race_state = race_state
-    return {"game_id": race_state.game_id, "ticket_buy": race_state.ticket_buy}
+    return {
+        "game_id": race_state.game_id,
+        "ticket_buy": race_state.ticket_buy,
+        "ticket_paid": race_state.ticket_paid,
+    }
 
 
 def current_race_state() -> dict:

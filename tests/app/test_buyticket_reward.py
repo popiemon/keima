@@ -50,7 +50,7 @@ def test_buyticket(
     client.post("/admin/set_coins", json={"team_name": team_name, "coins": 1000})
     _ = client.post(
         "/admin/set_race_state",
-        json={"game_id": game_id, "ticket_buy": True},
+        json={"game_id": game_id, "ticket_buy": True, "ticket_paid": False},
     )
 
     # Buy tickets
@@ -72,7 +72,7 @@ def test_buyticket(
     # Close ticket purchasing
     client.post(
         "/admin/set_race_state",
-        json={"game_id": game_id, "ticket_buy": False},
+        json={"game_id": game_id, "ticket_buy": False, "ticket_paid": False},
     )
 
     # pay tickets
@@ -82,6 +82,11 @@ def test_buyticket(
     )
     assert pay_response.status_code == 200
     assert pay_response.json()["team_coins"] == expected_coins
+
+    client.post(
+        "/admin/set_race_state",
+        json={"game_id": game_id, "ticket_buy": False, "ticket_paid": True},
+    )
 
     # # Save race result
     # client.post("/admin/save_race_result", json=result)
