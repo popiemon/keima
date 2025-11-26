@@ -96,7 +96,11 @@ def current_race_state() -> dict:
 def get_race_state(service: RaceStateService = Depends(get_race_state_service)) -> dict:
     """HTTP エンドポイント: DI でサービスを受け取り現在の race_state を返す"""
     rs = service.race_state
-    return {"game_id": rs.game_id, "ticket_buy": rs.ticket_buy}
+    return {
+        "game_id": rs.game_id,
+        "ticket_buy": rs.ticket_buy,
+        "ticket_paid": rs.ticket_paid,
+    }
 
 
 @app.post("/buy_ticket")
