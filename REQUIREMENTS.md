@@ -48,7 +48,7 @@
     - **リクエストボディ:**
         ```json
         {
-          "race_id": 1,
+          "game_id": 1,
           "ticket_type": "trifecta", // "win" or "trifecta"
           "picks": [3, 1, 4] // 単勝の場合は [3] のように1頭、3連単の場合は [3, 1, 4] のように3頭
         }
@@ -69,7 +69,7 @@
         [
           {
             "ticket_id": 101,
-            "race_id": 1,
+            "game_id": 1,
             "ticket_type": "trifecta",
             "picks": [3, 1, 4],
             "status": "pending" // "pending", "won", "lost"
@@ -79,7 +79,7 @@
 
 ### 5.2. 管理者向けエンドポイント
 
-- `POST /admin/races/{race_id}/results`
+- `POST /admin/races/{game_id}/results`
     - **説明:** 管理者がレースの結果を登録する。
     - **リクエストボディ:**
         ```json
@@ -90,18 +90,18 @@
     - **レスポンス:**
         ```json
         {
-          "message": "Race results for race_id 1 have been recorded."
+          "message": "Race results for game_id 1 have been recorded."
         }
         ```
 
 ### 5.3. 一般向けエンドポイント
 
-- `GET /races/{race_id}`
+- `GET /races/{game_id}`
     - **説明:** 特定のレース情報を取得する（結果が確定していれば結果も含む）。
     - **レスポンス:**
         ```json
         {
-          "race_id": 1,
+          "game_id": 1,
           "race_name": "第1レース",
           "horses": [1, 2, 3, 4],
           "results": [2, 4, 1, 3] // 未確定の場合は null
@@ -115,12 +115,12 @@
     - `coin` (integer)
     - `balance` (integer)
 - **Race:**
-    - `race_id` (integer, PK)
+    - `game_id` (integer, PK)
     - `results` (array of integer, nullable)
 - **Ticket:**
     - `ticket_id` (integer, PK)
     - `user_id` (string, FK)
-    - `race_id` (integer, FK)
+    - `game_id` (integer, FK)
     - `ticket_type` (string)
     - `picks` (array of integer)
     - `status` (string)

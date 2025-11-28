@@ -18,7 +18,7 @@ def test_read_root(client: TestClient):
 @pytest.mark.parametrize(
     ("team_name", "coins", "game_id", "expected_response"),
     [
-        ("A", 100, 0, {"team_name": "A", "added_coin": 100}),
+        ("A", 1000, 0, {"team_name": "A", "added_coin": 1000}),
         ("B", 200, 1, {"team_name": "B", "added_coin": 200}),
     ],
 )
