@@ -71,13 +71,13 @@ class SetCoinsRequest(BaseModel):
         teamの名前
     coins : int
         設定するcoin数
-    game_id : int | None, optional
-        レース番号。, by default None
+    game_id : int
+        レース番号
     """
 
     team_name: str
     coins: int
-    game_id: int | None = None
+    game_id: int
 
 
 class RaceStateService:

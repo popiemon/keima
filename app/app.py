@@ -48,9 +48,6 @@ def read_root():
 @app.post("/admin/set_coins")
 async def set_coins(req: SetCoinsRequest, db: AsyncSession = Depends(get_db)) -> dict:
     """各チームのcoinを設定する"""
-    if req.game_id is None:
-        req.game_id = 0
-
     coins = Coins(
         team_name=req.team_name,
         coins=req.coins,
@@ -60,7 +57,7 @@ async def set_coins(req: SetCoinsRequest, db: AsyncSession = Depends(get_db)) ->
     await db.commit()
     await db.refresh(coins)
 
-    return {"team_name": req.team_name, "added_coin": req.coins}
+    return {"team_name": req.team_name, "added_coin": req.coins, "game_id": req.game_id}
 
 
 @app.get("/get_coins")
