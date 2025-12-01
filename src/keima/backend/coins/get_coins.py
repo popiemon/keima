@@ -1,38 +1,30 @@
-import pandas as pd
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from keima.myexception.backend import NoCoinsDataError
+from keima.backend.database.teams import Coins
 
 
-def get_team_coins(team_name: str, dir_path: str, game_id: int | None = None) -> int:
-    """teamのcoinを取得する。
-
-    game_idが指定されているときは、その値に対応する行のcoinsを返す。
-    指定されていないときは、dfの最後の行のcoinsを返す。
+async def get_team_coins(team_name: str, game_id: int, db: AsyncSession) -> int | None:
+    """指定したteam_name, game_idのcoinsを取得
 
     Parameters
     ----------
     team_name : str
         teamの名前
-    dir_path : str
-        coin設定ファイルのディレクトリパス
-    game_id : int | None, optional
-        ゲームID, by default None
+    game_id : int
+        game_id
+    db : AsyncSession
+        DBセッション
 
     Returns
     -------
-    int
-        dfの最後の行のcoins値
+    int | None
+        coins数、存在しない場合はNone
     """
-    df_path = f"{dir_path}/{team_name}_coins.csv"
-    df = pd.read_csv(df_path)
+    stmt = select(Coins.coins).where(
+        Coins.team_name == team_name, Coins.game_id == game_id
+    )
+    result = await db.execute(stmt)
+    coins = result.scalar_one_or_none()
 
-    if df.empty:
-        raise NoCoinsDataError(f"No coins data available for team: {team_name}")
-
-    if game_id is not None:
-        filtered_coins = df.loc[df["game_id"] == game_id, "coins"]
-        coins = filtered_coins.iloc[0] if not filtered_coins.empty else 0
-    else:
-        df = df.sort_values(by="game_id", ascending=False)
-        coins = df.iloc[0]["coins"]
     return coins
