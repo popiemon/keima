@@ -4,6 +4,7 @@ from pathlib import Path
 import pandas as pd
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from keima.backend.app_class.app_class import (
@@ -61,8 +62,10 @@ async def set_coins(req: SetCoinsRequest, db: AsyncSession = Depends(get_db)) ->
 
 
 @app.get("/get_coins")
-def get_coins(team_name: str, game_id: int) -> dict:
-    """各チームのcoinをgetする
+async def get_coins(
+    team_name: str, game_id: int, db: AsyncSession = Depends(get_db)
+) -> dict:
+    """各チームのcoinを取得する
 
     Parameters
     ----------
@@ -76,8 +79,18 @@ def get_coins(team_name: str, game_id: int) -> dict:
     dict
         team_nameとcoin数の辞書
     """
-    coins = get_team_coins(team_name, DIR_PATH, game_id)
-    return {"team_name": team_name, "coins": int(coins)}
+    stmt = select(Coins.coins).where(
+        Coins.team_name == team_name, Coins.game_id == game_id
+    )
+    result = await db.execute(stmt)
+    coins = result.scalar_one_or_none()
+
+    if coins is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Coins not found for team '{team_name}' and game_id {game_id}",
+        )
+    return {"team_name": team_name, "coins": coins}
 
 
 @app.post("/admin/set_race_state")
