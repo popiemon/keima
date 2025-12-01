@@ -1,8 +1,10 @@
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 import pandas as pd
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from keima.backend.app_class.app_class import (
     BuyTicketRequest,
@@ -12,21 +14,21 @@ from keima.backend.app_class.app_class import (
 )
 from keima.backend.coins.get_coins import get_team_coins
 from keima.backend.coins.set_coins import set_team_coins
+from keima.backend.database.database import Base, engine, get_db
+from keima.backend.database.teams import Coins
 from keima.backend.race_result.load_result import load_result
 from keima.backend.race_result.save_result import save_result
 from keima.backend.reward.reward import Reward
-from keima.backend.database.database import engine, get_db
-from sqlalchemy.ext.asyncio import AsyncSession
-from contextlib import asynccontextmanager
-from keima.backend.database.teams import Coins
 
 DIR_PATH = str(Path(__file__).parent.parent / "data")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     async with engine.begin() as conn:
-        await conn.run_sync()
+        await conn.run_sync(Base.metadata.create_all)
     yield
+
 
 app = FastAPI(lifespan=lifespan)
 
@@ -48,7 +50,7 @@ async def set_coins(req: SetCoinsRequest, db: AsyncSession = Depends(get_db)) ->
     """各チームのcoinを設定する"""
     if req.game_id is None:
         req.game_id = 0
-    
+
     coins = Coins(
         team_name=req.team_name,
         coins=req.coins,
@@ -57,7 +59,7 @@ async def set_coins(req: SetCoinsRequest, db: AsyncSession = Depends(get_db)) ->
     db.add(coins)
     await db.commit()
     await db.refresh(coins)
-    
+
     return {"team_name": req.team_name, "added_coin": req.coins}
 
 
