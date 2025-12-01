@@ -15,14 +15,22 @@ from keima.backend.coins.set_coins import set_team_coins
 from keima.backend.race_result.load_result import load_result
 from keima.backend.race_result.save_result import save_result
 from keima.backend.reward.reward import Reward
+from keima.backend.database.database import engine, get_db
+from sqlalchemy.ext.asyncio import AsyncSession
+from contextlib import asynccontextmanager
+from keima.backend.database.teams import Coins
 
 DIR_PATH = str(Path(__file__).parent.parent / "data")
 
-app = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    async with engine.begin() as conn:
+        await conn.run_sync()
+    yield
+
+app = FastAPI(lifespan=lifespan)
 
 reward_cls = Reward()
-
-
 race_state_service = RaceStateService()
 
 
@@ -36,9 +44,20 @@ def read_root():
 
 
 @app.post("/admin/set_coins")
-def set_coins(req: SetCoinsRequest) -> dict:
+async def set_coins(req: SetCoinsRequest, db: AsyncSession = Depends(get_db)) -> dict:
     """各チームのcoinを設定する"""
-    set_team_coins(req.team_name, req.coins, DIR_PATH, req.game_id)
+    if req.game_id is None:
+        req.game_id = 0
+    
+    coins = Coins(
+        team_name=req.team_name,
+        coins=req.coins,
+        game_id=req.game_id,
+    )
+    db.add(coins)
+    await db.commit()
+    await db.refresh(coins)
+    
     return {"team_name": req.team_name, "added_coin": req.coins}
 
 
