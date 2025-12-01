@@ -58,7 +58,7 @@ async def set_coins(req: SetCoinsRequest, db: AsyncSession = Depends(get_db)) ->
     await db.commit()
     await db.refresh(coins)
 
-    return {"team_name": req.team_name, "added_coin": req.coins, "game_id": req.game_id}
+    return {"team_name": req.team_name, "coins": req.coins, "game_id": req.game_id}
 
 
 @app.get("/get_coins")
@@ -90,7 +90,7 @@ async def get_coins(
             status_code=404,
             detail=f"Coins not found for team '{team_name}' and game_id {game_id}",
         )
-    return {"team_name": team_name, "coins": coins}
+    return {"team_name": team_name, "coins": coins, "game_id": game_id}
 
 
 @app.post("/admin/set_race_state")
