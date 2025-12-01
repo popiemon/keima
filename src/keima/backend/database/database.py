@@ -12,7 +12,7 @@ db_password = os.getenv("POSTGRES_PASSWORD", "password")
 db_name = os.getenv("POSTGRES_DB", "postgres")
 
 # 接続URL: postgresql+asyncpg://ユーザー名:パスワード@ホスト:ポート/DB名
-DATABASE_URL = "postgresql+asyncpg://postgres:password@localhost/test_db"
+DATABASE_URL = f"postgresql+asyncpg://{db_user}:{db_password}@localhost/{db_name}"
 
 # 非同期エンジンの作成
 engine = create_async_engine(DATABASE_URL, echo=True)
