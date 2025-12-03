@@ -4,6 +4,7 @@ from pathlib import Path
 import pandas as pd
 import uvicorn
 from fastapi import Depends, FastAPI, HTTPException
+from sqlalchemy import tuple_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from keima.backend.app_class.app_class import (
@@ -11,12 +12,12 @@ from keima.backend.app_class.app_class import (
     RaceState,
     RaceStateService,
     SetCoinsRequest,
+    TicketInfo,
 )
 from keima.backend.coins.get_coins import get_team_coins
 from keima.backend.coins.set_coins import set_team_coins
 from keima.backend.database.database import Base, engine, get_db
 from keima.backend.database.teams import Coins
-from keima.backend.database.tickets import Tickets
 from keima.backend.race_result.load_result import load_result
 from keima.backend.race_result.save_result import save_result
 from keima.backend.reward.reward import Reward
@@ -143,24 +144,33 @@ async def buy_ticket(req: BuyTicketRequest, db: AsyncSession = Depends(get_db)) 
 
     # チケット情報を DataFrame に変換
     ticket_df = pd.DataFrame([t.model_dump() for t in req.tickets])
+    print(ticket_df)
     num_coins = ticket_df["unit"].sum()
     team_name = req.team_name
     team_coin = await get_team_coins(team_name, game_id, db)
     if team_coin < num_coins:
         return {"error": "Not enough coins to purchase tickets."}
 
-    for ticket_info in req.tickets:
-        ticket = Tickets(
-            team_name=team_name,
-            game_id=game_id,
-            ticket_type=ticket_info.ticket_type,
-            one=ticket_info.one,
-            two=ticket_info.two,
-            three=ticket_info.three,
-            unit=ticket_info.unit,
+    records = ticket_df[["game_id", "team"]].to_dict(orient="records")
+
+    db.query(TicketInfo).filter(
+        tuple_(TicketInfo.game_id, User.team).in_(
+            [(r["game_id"], r["team"]) for r in records]
         )
-        db.add(ticket)
-    await db.commit()
+    ).delete(synchronize_session=False)
+
+    # for ticket_info in req.tickets:
+    #     ticket = Tickets(
+    #         team_name=team_name,
+    #         game_id=game_id,
+    #         ticket_type=ticket_info.ticket_type,
+    #         one=ticket_info.one,
+    #         two=ticket_info.two,
+    #         three=ticket_info.three,
+    #         unit=ticket_info.unit,
+    #     )
+    #     db.add(ticket)
+    # await db.commit()
 
     ticket_df.to_csv(f"{DIR_PATH}/{team_name}_{game_id}_tickets.csv", index=False)
     return {"team_name": team_name, "purchased_tickets_coins": int(num_coins)}

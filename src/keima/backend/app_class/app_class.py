@@ -8,8 +8,8 @@ class TicketInfo(BaseModel):
 
     ticket_type: Literal["win", "exacta", "trifecta"]
     one: int
-    two: int | None = None
-    three: int | None = None
+    two: int
+    three: int
     unit: int = 1
 
 
