@@ -12,11 +12,18 @@ def client():
 @pytest.mark.parametrize(
     ("team_name", "game_id", "tickets", "coins", "payment", "expected_coins"),
     [
-        ("A", 1, [{"ticket_type": "win", "one": 1, "unit": 2}], 100, 2, 98),
+        (
+            "A",
+            1,
+            [{"ticket_type": "win", "one": 1, "two": 0, "three": 0, "unit": 2}],
+            100,
+            2,
+            98,
+        ),
         (
             "B",
             1,
-            [{"ticket_type": "exacta", "one": 1, "two": 2, "unit": 3}],
+            [{"ticket_type": "exacta", "one": 1, "two": 2, "three": 0, "unit": 3}],
             100,
             3,
             97,
@@ -26,7 +33,7 @@ def client():
             1,
             [
                 {"ticket_type": "trifecta", "one": 1, "two": 2, "three": 3, "unit": 1},
-                {"ticket_type": "win", "one": 4, "unit": 5},
+                {"ticket_type": "win", "one": 4, "two": 0, "three": 0, "unit": 5},
             ],
             100,
             6,
